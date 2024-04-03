@@ -68,21 +68,51 @@ test_db_storage.py'])
                             "{:s} method needs a docstring".format(func[0]))
 
 
-class TestFileStorage(unittest.TestCase):
+class TestDBStorage(unittest.TestCase):
     """Test the FileStorage class"""
-    @unittest.skipIf(models.storage_t != 'db', "not testing db storage")
-    def test_all_returns_dict(self):
-        """Test that all returns a dictionaty"""
-        self.assertIs(type(models.storage.all()), dict)
+    @classmethod
+    def setUpClass(cls):
+        """Set up for the tests"""
+        cls.storage = DBStorage()
 
-    @unittest.skipIf(models.storage_t != 'db', "not testing db storage")
-    def test_all_no_class(self):
-        """Test that all returns all rows when no class is passed"""
+    def setUp(self):
+        """Setup method"""
+        # Create some test objects
+        self.state = State()
+        self.state.name = "California"
+        self.state.save()
 
-    @unittest.skipIf(models.storage_t != 'db', "not testing db storage")
-    def test_new(self):
-        """test that new adds an object to the database"""
+    def tearDown(self):
+        """Teardown method"""
+        # Clean up created objects
+        os.remove("file.json")
 
-    @unittest.skipIf(models.storage_t != 'db', "not testing db storage")
-    def test_save(self):
-        """Test that save properly saves objects to file.json"""
+    def test_get(self):
+        """Test the get method"""
+        obj = self.storage.get(State, self.state.id)
+        self.assertEqual(obj, self.state)
+
+        # Test getting non-existent object
+        obj = self.storage.get(State, "non_existent_id")
+        self.assertIsNone(obj)
+
+    def test_count(self):
+        """Test the count method"""
+        # Test counting all objects
+        count_all = self.storage.count()
+        self.assertEqual(count_all, 1)
+
+        # Test counting specific class objects
+        count_state = self.storage.count(State)
+        self.assertEqual(count_state, 1)
+
+        # Create more test objects
+        state2 = State()
+        state2.name = "New York"
+        state2.save()
+
+        count_all_after = self.storage.count()
+        count_state_after = self.storage.count(State)
+
+        self.assertEqual(count_all_after, 2)
+        self.assertEqual(count_state_after, 2)
