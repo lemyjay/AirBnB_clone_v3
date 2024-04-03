@@ -5,8 +5,7 @@
 
 from flask import Flask, jsonify
 from flask_cors import CORS
-import os
-
+from os import getenv
 from api.v1.views import app_views
 from models import storage
 
@@ -14,8 +13,8 @@ from models import storage
 app = Flask(__name__)
 '''The Flask web application instance.'''
 CORS(app, resources={r"/*": {"origins": "0.0.0.0"}})
-app_host = os.getenv('HBNB_API_HOST', '0.0.0.0')
-app_port = int(os.getenv('HBNB_API_PORT', '5000'))
+app_host = getenv("HBNB_API_HOST", default='0.0.0.0')
+app_port = int(getenv("HBNB_API_PORT", default=5000))
 app.url_map.strict_slashes = False
 app.register_blueprint(app_views)
 
@@ -44,4 +43,4 @@ def handle_404(exception):
     return(resp)
 
 if __name__ == "__main__":
-    app.run(getenv("HBNB_API_HOST"), getenv("HBNB_API_PORT"))
+    app.run(app_host, app_port, threaded=True)

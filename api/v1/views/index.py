@@ -23,7 +23,7 @@ def g_status():
 def g_stats():
     ''' Retrieves the number of each objects by type
     '''
-    info = {
+    objects = {
         'amenities': Amenity,
         'cities': City,
         'places': Place,
